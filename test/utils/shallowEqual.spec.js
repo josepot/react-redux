@@ -1,4 +1,4 @@
-import shallowEqual from '../../src/utils/shallowEqual'
+import {shallowCompare as shallowEqual} from '../../src/utils'
 
 describe('Utils', () => {
   describe('shallowEqual', () => {
@@ -78,33 +78,6 @@ describe('Utils', () => {
           NaN
         )
       ).toBe(true)
-    })
-
-    it('should compare empty objects, with false', () => {
-      expect(
-        shallowEqual(
-          {},
-          false
-        )
-      ).toBe(false)
-      expect(
-        shallowEqual(
-          false,
-          {}
-        )
-      ).toBe(false)
-      expect(
-        shallowEqual(
-          [],
-          false
-        )
-      ).toBe(false)
-      expect(
-        shallowEqual(
-          false,
-          []
-        )
-      ).toBe(false)
     })
 
     it('should compare two zero values', () => {

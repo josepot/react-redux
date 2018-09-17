@@ -1,7 +1,7 @@
 {
-  "name": "react-redux",
-  "version": "5.1.0-test.1",
-  "description": "Official React bindings for Redux",
+  "name": "react-redux-lean",
+  "version": "0.0.1",
+  "description": "Unofficial React bindings for Redux",
   "keywords": [
     "react",
     "reactjs",
@@ -14,10 +14,10 @@
     "redux"
   ],
   "license": "MIT",
-  "author": "Dan Abramov <dan.abramov@me.com> (https://github.com/gaearon)",
-  "homepage": "https://github.com/reduxjs/react-redux",
-  "repository": "github:reduxjs/react-redux",
-  "bugs": "https://github.com/reduxjs/react-redux/issues",
+  "author": "Josep M Sobrepere <josep.sobrepere@me.com> (https://github.com/josepot)",
+  "homepage": "https://github.com/josepot/react-redux-lean",
+  "repository": "github:josepot/react-redux-lean",
+  "bugs": "https://github.com/josepot/react-redux-lean/issues",
   "main": "./lib/index.js",
   "unpkg": "dist/react-redux.js",
   "module": "es/index.js",
@@ -40,15 +40,14 @@
     "coverage": "codecov"
   },
   "peerDependencies": {
-    "react": "^0.14.0 || ^15.0.0-0 || ^16.0.0-0",
+    "react": "^16.4.0-0",
     "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0"
   },
   "dependencies": {
     "hoist-non-react-statics": "^2.5.5",
     "invariant": "^2.2.4",
     "loose-envify": "^1.1.0",
-    "prop-types": "^15.6.1",
-    "react-lifecycles-compat": "^3.0.0"
+    "prop-types": "^15.6.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
