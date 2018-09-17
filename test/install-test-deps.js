@@ -14,18 +14,14 @@ readdirSync(join(__dirname, 'react')).forEach(version => {
   }
   const tests = [join(__dirname, 'components'), join(__dirname, 'utils')]
   const srcs = [
-    join(__dirname, '..', 'src', 'components'),
-    join(__dirname, '..', 'src', 'connect'),
-    join(__dirname, '..', 'src', 'utils'),
+    join(__dirname, '..', 'src'),
   ]
   const dest = [
     join(__dirname, 'react', version, 'test', 'components'),
     join(__dirname, 'react', version, 'test', 'utils'),
   ]
   const srcDest = [
-    join(__dirname, 'react', version, 'src', 'components'),
-    join(__dirname, 'react', version, 'src', 'connect'),
-    join(__dirname, 'react', version, 'src', 'utils'),
+    join(__dirname, 'react', version, 'src'),
   ]
 
   if (!existsSync(join(__dirname, 'react', version, 'test'))) {
