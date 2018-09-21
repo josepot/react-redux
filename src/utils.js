@@ -19,4 +19,3 @@ export const shallowCompare = (a, b) => {
   }
   return true;
 };
-
