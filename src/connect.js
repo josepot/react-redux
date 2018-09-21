@@ -6,12 +6,25 @@ import React, { Component } from 'react'
 import {Consumer} from './Provider'
 import {mapObj, shallowCompare} from './utils'
 
-export default (fromStateProps, fromActionProps, mapper, {withRef = false} = {}) => BaseComponent => {
+const emptyObj = {};
+export default (fromStateProps_, fromActionProps, mapper, {withRef = false} = {}) => BaseComponent => {
   invariant(
     typeof BaseComponent == 'function',
     `You must pass a component to the function returned by ` +
     `connect. Instead received ${JSON.stringify(BaseComponent)}`
   )
+  const isObject = typeof fromStateProps_ === 'object';
+  const dependsOnProps = fromStateProps_ && (isObject ? Object.values(fromStateProps_) : [fromStateProps_])
+    .some(fn => fn.length !== 1);
+
+  const fromStateProps = !fromStateProps_
+    ? () => emptyObj
+    : isObject
+      ? function() {
+        return mapObj(fromStateProps_, fn => fn.apply(null, arguments));
+      }
+      : fromStateProps_;
+
   class Connect extends Component {
     constructor(props) {
       super(props);
@@ -20,25 +33,22 @@ export default (fromStateProps, fromActionProps, mapper, {withRef = false} = {})
       )
       this.state = {
         actionProps: mapObj(
-          fromActionProps || {}, 
+          fromActionProps || emptyObj, 
           fn => (...args) => props.dispatch(fn(...args))
         ),
-        childProps: {},
-        stateProps: {},
-        dependsOnProps: Object
-          .values(fromStateProps || {})
-          .reduce((res, fn) => res && fn.length !== 1, true),
+        childProps: emptyObj,
+        stateProps: emptyObj,
       };
     }
 
-    static getDerivedStateFromProps({state, props, stateChanged}, {actionProps, dependsOnProps, stateProps: prevStateProps}) {
+    static getDerivedStateFromProps({state, props, stateChanged}, {actionProps, stateProps: prevStateProps}) {
       const stateProps = stateChanged || dependsOnProps
-        ? mapObj(fromStateProps || {}, selector => selector(state, props))
+        ? fromStateProps(state, props)
         : prevStateProps;
       const childProps = mapper
         ? mapper(stateProps, actionProps, props)
         : {...props, ...stateProps, ...actionProps};
-      return {actionProps, stateProps, childProps, dependsOnProps};
+      return {actionProps, childProps, stateProps};
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -61,7 +71,9 @@ export default (fromStateProps, fromActionProps, mapper, {withRef = false} = {})
   class ConnectWrapper extends Component {
     constructor(props) {
       super(props)
-      this.setWrappedInstance = this.setWrappedInstance.bind(this)
+      this.setWrappedInstance = withRef
+        ? this.setWrappedInstance.bind(this)
+        : undefined;
     }
 
     getWrappedInstance() {
@@ -84,7 +96,7 @@ export default (fromStateProps, fromActionProps, mapper, {withRef = false} = {})
           return (<Connect
             dispatch={dispatch}
             props={this.props}
-            setWrappedInstance={withRef ? this.setWrappedInstance : undefined}
+            setWrappedInstance={this.setWrappedInstance}
             state={state}
             stateChanged={stateChanged}
           />);

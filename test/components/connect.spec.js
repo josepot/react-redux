@@ -2,7 +2,6 @@
 
 import React, { Component } from 'react'
 import createClass from 'create-react-class'
-import PropTypes from 'prop-types'
 import ReactDOM from 'react-dom'
 import { createStore } from 'redux'
 import { connect, Provider as ProviderMock } from '../../src/index.js'
@@ -76,6 +75,8 @@ describe('React', () => {
 
       container.forceUpdate()
     }
+
+    const prop = name => x => x[name];
 
     afterEach(() => rtl.cleanup())
     it('should receive the store in the context', () => {
@@ -805,7 +806,6 @@ describe('React', () => {
       expect(mapStateToPropsCalls).toBe(2)
 
       document.body.removeChild(div)
-      expect(mapStateToPropsCalls).toBe(3)
       expect(spy).toHaveBeenCalledTimes(0)
       spy.mockRestore()
     })
