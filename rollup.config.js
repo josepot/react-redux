@@ -11,7 +11,7 @@ const config = {
   external: ['react', 'redux'],
   output: {
     format: 'umd',
-    name: 'ReactRedux',
+    name: 'ReactReduxLean',
     globals: {
       react: 'React',
       redux: 'Redux'
