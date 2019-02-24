@@ -1,21 +1,35 @@
-export const mapObj = (obj, mapper) => Object.keys(obj).reduce(
-  (res, key) => {
-    res[key] = mapper(obj[key], key, obj);
-    return res;
-  },
-  {}
-);
+const hasOwn = Object.prototype.hasOwnProperty
 
-export const shallowCompare = (a, b) => {
-  if (a === b) return true;
-  const aKeys = Object.keys(a);
-  const bKeys = Object.keys(b);
-  if (aKeys.length !== bKeys.length) return false;
+function is(x, y) {
+  if (x === y) {
+    return x !== 0 || y !== 0 || 1 / x === 1 / y
+  } else {
+    return x !== x && y !== y
+  }
+}
 
-  for (let i = 0; i < aKeys.length; i++) {
-    if (a[aKeys[i]] !== b[aKeys[i]] || a[bKeys[i]] !== b[bKeys[i]]) {
-      return false;
+export function shallowCompare(objA, objB) {
+  if (is(objA, objB)) return true
+
+  if (
+    typeof objA !== 'object' ||
+    objA === null ||
+    typeof objB !== 'object' ||
+    objB === null
+  ) {
+    return false
+  }
+
+  const keysA = Object.keys(objA)
+  const keysB = Object.keys(objB)
+
+  if (keysA.length !== keysB.length) return false
+
+  for (let i = 0; i < keysA.length; i++) {
+    if (!hasOwn.call(objB, keysA[i]) || !is(objA[keysA[i]], objB[keysA[i]])) {
+      return false
     }
   }
-  return true;
-};
+
+  return true
+}

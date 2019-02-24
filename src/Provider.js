@@ -1,43 +1,38 @@
 import PropTypes from 'prop-types'
-import {Component, createContext, createElement} from 'react';
+import React, { createContext, useState, useEffect } from 'react'
 
-const context = createContext({});
+export const context = createContext({})
 
-export const {Consumer} = context;
-const {Provider} = context;
+const { Provider } = context
 
-export default class ReduxProvider extends Component {
-  constructor(props) {
-    super(props);
-    const {store, isSSR} = props;
-    this.state = {state: store.getState(), dispatch: store.dispatch};
+const ReduxProvider = ({ store, children, isSSR }) => {
+  const { dispatch } = store
+  const [state, setState] = useState(undefined)
 
-    if (!isSSR) {
-      this.subscription = store.subscribe(() => {
-        this.setState({state: store.getState()});
-      });
-    }
-  }
+  useEffect(() => {
+    setState(store.getState())
+    return isSSR ? undefined : store.subscribe(() => setState(store.getState()))
+  }, [isSSR, setState, store])
 
-  componentWillUnmount() {
-    this.subscription && this.subscription();
-  }
-
-  render() {
-    return createElement(Provider, {value: this.state, children: this.props.children});
-  }
+  return !isSSR && state === undefined ? null : (
+    <Provider value={{ state: store.getState(), dispatch }}>
+      {children}
+    </Provider>
+  )
 }
 
 ReduxProvider.propTypes = {
-  children: PropTypes.element.isRequired,
+  children: PropTypes.any,
   isSSR: PropTypes.bool,
   store: PropTypes.shape({
     subscribe: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
     getState: PropTypes.func.isRequired
-  }),
-};
+  })
+}
 
 ReduxProvider.defaultProps = {
-  isSSR: false,
-};
+  isSSR: false
+}
+
+export default ReduxProvider

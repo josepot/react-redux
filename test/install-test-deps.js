@@ -1,31 +1,32 @@
 /* eslint no-console: 0 */
-'use strict';
+'use strict'
 
-const { readdirSync, existsSync, copyFile, mkdirSync } = require('fs');
-const rimraf = require('rimraf');
-const { join } = require('path');
-const spawn = require("cross-spawn");
-const reactVersion = process.env.REACT || '16.4'
+const { readdirSync, existsSync, copyFile, mkdirSync } = require('fs')
+const rimraf = require('rimraf')
+const { join } = require('path')
+const spawn = require('cross-spawn')
+const reactVersion = process.env.REACT || '16.8'
 
 readdirSync(join(__dirname, 'react')).forEach(version => {
   if (reactVersion.toLowerCase() !== 'all' && version !== reactVersion) {
     console.log(`skipping ${version}, ${reactVersion} was specified`)
     return
   }
-  const tests = [join(__dirname, 'components'), join(__dirname, 'utils')]
-  const srcs = [
-    join(__dirname, '..', 'src'),
+  const tests = [
+    join(__dirname, 'components'),
+    join(__dirname, 'integration'),
+    join(__dirname, 'utils')
   ]
+  const srcs = [join(__dirname, '..', 'src')]
   const dest = [
     join(__dirname, 'react', version, 'test', 'components'),
-    join(__dirname, 'react', version, 'test', 'utils'),
+    join(__dirname, 'react', version, 'test', 'integration'),
+    join(__dirname, 'react', version, 'test', 'utils')
   ]
-  const srcDest = [
-    join(__dirname, 'react', version, 'src'),
-  ]
+  const srcDest = [join(__dirname, 'react', version, 'src')]
 
   if (!existsSync(join(__dirname, 'react', version, 'test'))) {
-    throw new Error(`react version ${version}'s "test" directory is missing, cannot run tests`)
+    mkdirSync(join(__dirname, 'react', version, 'test'))
   }
 
   if (!existsSync(join(__dirname, 'react', version, 'src'))) {
@@ -62,24 +63,32 @@ readdirSync(join(__dirname, 'react')).forEach(version => {
         if (e) console.log(e)
       })
     })
-    copyFile(join(__dirname, '..', 'src', 'index.js'), join(__dirname, 'react', version, 'src', 'index.js'), e => {
-      if (e) console.log(e)
-    })
+    copyFile(
+      join(__dirname, '..', 'src', 'index.js'),
+      join(__dirname, 'react', version, 'src', 'index.js'),
+      e => {
+        if (e) console.log(e)
+      }
+    )
   })
-  const cwd = join(__dirname, 'react', version);
-  if (existsSync(join(__dirname, 'react', version, 'node_modules', 'react', 'package.json'))) {
-    console.log(`Skipping React version ${version} ... (already installed)`);
+  const cwd = join(__dirname, 'react', version)
+  if (
+    existsSync(
+      join(__dirname, 'react', version, 'node_modules', 'react', 'package.json')
+    )
+  ) {
+    console.log(`Skipping React version ${version} ... (already installed)`)
     return
   }
 
-  console.log(`Installing React version ${version}...`);
+  console.log(`Installing React version ${version}...`)
 
   const installTask = spawn.sync('npm', ['install'], {
     cwd,
-    stdio: 'inherit',
-  });
+    stdio: 'inherit'
+  })
 
   if (installTask.status > 0) {
-    process.exit(installTask.status);
+    process.exit(installTask.status)
   }
-});
+})
