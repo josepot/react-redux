@@ -1,17 +1,40 @@
-const { readdirSync } = require('fs')
-const { join } = require('path')
 const npmRun = require('npm-run')
-const version = process.env.REACT || '16.4'
+const fs = require('fs')
+const path = require('path')
+const LATEST_VERSION = '16.8'
+const version = process.env.REACT || LATEST_VERSION
 
-try {
-  require('./install-test-deps.js')
-  if (version.toLowerCase() === 'all') {
-    readdirSync(join(__dirname, 'react')).forEach(version => {
-      npmRun.execSync(`cd test/react/${version} && npm test`, { stdio: 'inherit' })
-    })
-  } else {
-    npmRun.execSync(`cd test/react/${version} && npm test`, { stdio: 'inherit' })
+let jestConfig = {
+  testURL: 'http://localhost',
+  collectCoverage: true,
+  coverageDirectory: `${__dirname}/coverage`,
+  transform: {
+    '.js$': `${__dirname}/babel-transformer.jest.js`
   }
-} finally {
-  npmRun.execSync('cd ../../..')
 }
+
+require('./install-test-deps.js')
+
+if (version.toLowerCase() === 'all') {
+  jestConfig = {
+    ...jestConfig,
+    rootDir: __dirname,
+    // every directory has the same coverage, so we collect it only from one
+    collectCoverageFrom: [`react/${LATEST_VERSION}/src/**.js`]
+  }
+} else {
+  jestConfig = {
+    ...jestConfig,
+    rootDir: `${__dirname}/react/${version}`
+  }
+}
+
+const configFilePath = path.join(__dirname, 'jest-config.json')
+
+fs.writeFileSync(configFilePath, JSON.stringify(jestConfig))
+
+const commandLine = `jest -c "${configFilePath}" ${process.argv
+  .slice(2)
+  .join(' ')}`
+
+npmRun.execSync(commandLine, { stdio: 'inherit' })
