@@ -1,4 +1,5 @@
 import { useContext, useEffect, useMemo } from 'react'
+import invariant from 'invariant'
 import { context } from './Provider'
 
 const emptyObj = {}
@@ -14,6 +15,9 @@ export default (selector_, props = emptyObj) => {
   ])
   useEffect(() => unsubscribe, [unsubscribe])
   const { state } = useContext(context)
+  if (process.env.NODE_ENV !== 'production') {
+    invariant(state !== undefined, 'Could not find "store"')
+  }
   return useMemo(() => selector(state, finalProps), [
     selector,
     state,
