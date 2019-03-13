@@ -5,20 +5,18 @@ export const context = createContext({})
 
 const { Provider } = context
 
-const ReduxProvider = ({ store, children, isSSR }) => {
-  const [stateStore, setStateStore] = useState(
-    isSSR ? { dispatch: store.dispatch, state: store.getState() } : {}
-  )
+const ReduxProvider = ({ store, children }) => {
+  const [stateStore, setStateStore] = useState({})
+
   const setState = useCallback(
     () => setStateStore({ dispatch: store.dispatch, state: store.getState() }),
     [setStateStore, store]
   )
 
   useEffect(() => {
-    if (isSSR) return undefined
     setState()
     return store.subscribe(setState)
-  }, [isSSR, setState, store])
+  }, [setState, store])
 
   return stateStore.dispatch === undefined ? null : (
     <Provider value={stateStore}>{children}</Provider>
@@ -27,7 +25,6 @@ const ReduxProvider = ({ store, children, isSSR }) => {
 
 ReduxProvider.propTypes = {
   children: PropTypes.any,
-  isSSR: PropTypes.bool,
   store: PropTypes.shape({
     subscribe: PropTypes.func.isRequired,
     dispatch: PropTypes.func.isRequired,
@@ -35,8 +32,12 @@ ReduxProvider.propTypes = {
   })
 }
 
-ReduxProvider.defaultProps = {
-  isSSR: false
-}
+export const ServerProvider = ({ store, children }) => (
+  <Provider value={{ dispatch: store.dispatch, state: store.getState() }}>
+    {children}
+  </Provider>
+)
+
+ServerProvider.propTypes = ReduxProvider.propTypes
 
 export default ReduxProvider

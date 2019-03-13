@@ -3,7 +3,7 @@
 import React from 'react'
 import { renderToString } from 'react-dom/server'
 import { createStore } from 'redux'
-import { Provider, connect } from '../../src/index.js'
+import { ServerProvider as Provider, connect } from '../../src/index.js'
 
 describe('React', () => {
   describe('server rendering', () => {
@@ -24,7 +24,7 @@ describe('React', () => {
       const store = createStore(greetingReducer)
 
       const markup = renderToString(
-        <Provider store={store} isSSR>
+        <Provider store={store}>
           <Greeter greeted="world" />
         </Provider>
       )
@@ -38,7 +38,7 @@ describe('React', () => {
       store.dispatch({ type: 'Update', payload: { greeting: 'Hi' } })
 
       const markup = renderToString(
-        <Provider store={store} isSSR>
+        <Provider store={store}>
           <Greeter greeted="world" />
         </Provider>
       )
@@ -76,7 +76,7 @@ describe('React', () => {
       const action = { type: 'Update', payload: { greeting: 'Hi' } }
 
       const markup = renderToString(
-        <Provider store={store} isSSR>
+        <Provider store={store}>
           <ConnectedDispatcher action={action} greeted="world" />
         </Provider>
       )
@@ -113,7 +113,7 @@ describe('React', () => {
           }
 
           return (
-            <Provider store={store} isSSR>
+            <Provider store={store}>
               <Greeter greeted={this.props.greeted} />
             </Provider>
           )
@@ -126,7 +126,7 @@ describe('React', () => {
       const renderAction = { type: 'Update', payload: { greeting: 'Hey' } }
 
       const markup = renderToString(
-        <Provider store={store} isSSR>
+        <Provider store={store}>
           <ConnectedDispatcher
             constructAction={constructAction}
             greeted="world"
