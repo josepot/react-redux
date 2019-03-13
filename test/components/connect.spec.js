@@ -738,7 +738,7 @@ describe('React', () => {
       expect(invocationCount).toEqual(1)
     })
 
-    xit('should invoke mapDispatch every time props are changed if it has zero arguments', () => {
+    it('should invoke mapDispatch every time props are changed if it has zero arguments', () => {
       const store = createStore(stringBuilder)
 
       let invocationCount = 0
@@ -782,13 +782,18 @@ describe('React', () => {
         </ProviderMock>
       )
 
-      outerComponent.setFoo('BAR')
-      outerComponent.setFoo('DID')
+      rtl.act(() => {
+        outerComponent.setFoo('BAR')
+      })
+      expect(invocationCount).toEqual(2)
 
+      rtl.act(() => {
+        outerComponent.setFoo('DID')
+      })
       expect(invocationCount).toEqual(3)
     })
 
-    xit('should invoke mapDispatch every time props are changed if it has a second argument', () => {
+    it('should invoke mapDispatch every time props are changed if it has a second argument', () => {
       const store = createStore(stringBuilder)
 
       let propsPassedIn
@@ -834,9 +839,17 @@ describe('React', () => {
         </ProviderMock>
       )
 
-      outerComponent.setFoo('BAR')
-      outerComponent.setFoo('BAZ')
+      rtl.act(() => {
+        outerComponent.setFoo('BAR')
+      })
+      expect(invocationCount).toEqual(2)
+      expect(propsPassedIn).toEqual({
+        foo: 'BAR'
+      })
 
+      rtl.act(() => {
+        outerComponent.setFoo('BAZ')
+      })
       expect(invocationCount).toEqual(3)
       expect(propsPassedIn).toEqual({
         foo: 'BAZ'
@@ -1234,11 +1247,11 @@ describe('React', () => {
       )
     })
 
-    xit('should throw an error if a component is not passed to the function returned by connect', () => {
+    it('should throw an error if a component is not passed to the function returned by connect', () => {
       expect(connect()).toThrow(/You must pass a component to the function/)
     })
 
-    xit('should throw an error if mapState, mapDispatch, or mergeProps returns anything but a plain object', () => {
+    it('should throw an error if mapState, mapDispatch, or mergeProps returns anything but a plain object', () => {
       const store = createStore(() => ({}))
 
       function makeContainer(mapState, mapDispatch, mergeProps) {
@@ -1467,7 +1480,7 @@ describe('React', () => {
       expect(tester.getByTestId('actions')).toHaveTextContent('1')
     })
 
-    xit('should set the displayName correctly', () => {
+    it('should set the displayName correctly', () => {
       expect(
         connect(state => state)(
           class Foo extends Component {
@@ -1504,7 +1517,7 @@ describe('React', () => {
       ).toBe('Connect(Component)')
     })
 
-    xit('should expose the wrapped component as WrappedComponent', () => {
+    it('should expose the wrapped component as WrappedComponent', () => {
       class Container extends Component {
         render() {
           return <Passthrough />
@@ -1517,7 +1530,7 @@ describe('React', () => {
       expect(decorated.WrappedComponent).toBe(Container)
     })
 
-    xit('should hoist non-react statics from wrapped component', () => {
+    it('should hoist non-react statics from wrapped component', () => {
       class Container extends Component {
         render() {
           return <Passthrough />
@@ -1638,7 +1651,7 @@ describe('React', () => {
       expect(actualState).toEqual(expectedState)
     })
 
-    xit('should throw an error if the store is not in the props or context', () => {
+    it('should throw an error if the store is not in the props or context', () => {
       const spy = jest.spyOn(console, 'error').mockImplementation(() => {})
 
       class Container extends Component {
@@ -1687,7 +1700,7 @@ describe('React', () => {
       spy.mockRestore()
     })
 
-    xit('should return the instance of the wrapped component for use in calling child methods', async done => {
+    it('should return the instance of the wrapped component for use in calling child methods', async done => {
       const store = createStore(() => ({}))
 
       const someData = {
@@ -2338,7 +2351,7 @@ describe('React', () => {
       ReactDOM.unmountComponentAtNode(div)
     })
 
-    xit('should allow custom displayName', () => {
+    it('should allow custom displayName', () => {
       @connect(
         null,
         null,

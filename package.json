@@ -1,6 +1,6 @@
 {
   "name": "react-redux-lean",
-  "version": "0.1.0-alpha.1",
+  "version": "0.1.0-alpha.2",
   "description": "Unofficial React bindings for Redux",
   "keywords": [
     "react",
@@ -37,8 +37,7 @@
   },
   "peerDependencies": {
     "react": "^16.8.0-0",
-    "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0",
-    "prop-types": "^15.7.0-0"
+    "redux": "^2.0.0 || ^3.0.0 || ^4.0.0-0"
   },
   "dependencies": {
     "@babel/runtime": "^7.3.1",

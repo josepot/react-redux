@@ -101,7 +101,9 @@ describe('React', () => {
       })
       expect(tester.getByTestId('store')).toHaveTextContent('store - 12')
 
-      externalSetState({ store: store2 })
+      rtl.act(() => {
+        externalSetState({ store: store2 })
+      })
       expect(tester.getByTestId('store')).toHaveTextContent('store - 20')
       rtl.act(() => {
         store1.dispatch({ type: 'hi' })
@@ -112,7 +114,9 @@ describe('React', () => {
       })
       expect(tester.getByTestId('store')).toHaveTextContent('store - 40')
 
-      externalSetState({ store: store3 })
+      rtl.act(() => {
+        externalSetState({ store: store3 })
+      })
       expect(tester.getByTestId('store')).toHaveTextContent('store - 101')
       rtl.act(() => {
         store1.dispatch({ type: 'hi' })

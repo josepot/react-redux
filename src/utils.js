@@ -33,3 +33,46 @@ export function shallowCompare(objA, objB) {
 
   return true
 }
+
+function isPlainObject(obj) {
+  if (typeof obj !== 'object' || obj === null) return false
+
+  let proto = Object.getPrototypeOf(obj)
+  if (proto === null) return true
+
+  let baseProto = proto
+  while (Object.getPrototypeOf(baseProto) !== null) {
+    baseProto = Object.getPrototypeOf(baseProto)
+  }
+
+  return proto === baseProto
+}
+
+/**
+ * Prints a warning in the console if it exists.
+ *
+ * @param {String} message The warning message.
+ * @returns {void}
+ */
+function warning(message) {
+  /* eslint-disable no-console */
+  if (typeof console !== 'undefined' && typeof console.error === 'function') {
+    console.error(message)
+  }
+  /* eslint-enable no-console */
+  try {
+    // This error was thrown as a convenience so that if you enable
+    // "break on all exceptions" in your console,
+    // it would pause the execution at this line.
+    throw new Error(message)
+    /* eslint-disable no-empty */
+  } catch (e) {}
+  /* eslint-enable no-empty */
+}
+
+export const ensurePlainObject = (val, displayName, methodName) => {
+  if (!isPlainObject(val))
+    warning(
+      `${methodName}() in ${displayName} must return a plain object. Instead received ${val}.`
+    )
+}

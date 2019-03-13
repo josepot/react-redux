@@ -1,23 +1,27 @@
 import PropTypes from 'prop-types'
-import React, { createContext, useState, useEffect } from 'react'
+import React, { useCallback, createContext, useState, useEffect } from 'react'
 
 export const context = createContext({})
 
 const { Provider } = context
 
 const ReduxProvider = ({ store, children, isSSR }) => {
-  const { dispatch } = store
-  const [state, setState] = useState(undefined)
+  const [stateStore, setStateStore] = useState(
+    isSSR ? { dispatch: store.dispatch, state: store.getState() } : {}
+  )
+  const setState = useCallback(
+    () => setStateStore({ dispatch: store.dispatch, state: store.getState() }),
+    [setStateStore, store]
+  )
 
   useEffect(() => {
-    setState(store.getState())
-    return isSSR ? undefined : store.subscribe(() => setState(store.getState()))
+    if (isSSR) return undefined
+    setState()
+    return store.subscribe(setState)
   }, [isSSR, setState, store])
 
-  return !isSSR && state === undefined ? null : (
-    <Provider value={{ state: store.getState(), dispatch }}>
-      {children}
-    </Provider>
+  return stateStore.dispatch === undefined ? null : (
+    <Provider value={stateStore}>{children}</Provider>
   )
 }
 
