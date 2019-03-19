@@ -9,11 +9,12 @@ export default (selector_, props = emptyObj) => {
     () => (selector_.use ? selector_.use() : [selector_, Function.prototype]),
     [selector_]
   )
+  useEffect(() => unsubscribe, [unsubscribe])
+
   const finalProps = useMemo(() => (selector.length === 1 ? emptyObj : props), [
     props,
     selector
   ])
-  useEffect(() => unsubscribe, [unsubscribe])
   const { state } = useContext(context)
   if (process.env.NODE_ENV !== 'production') {
     invariant(state !== undefined, 'Could not find "store"')
