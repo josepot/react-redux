@@ -68,7 +68,6 @@ export default (
     Connect.displayName = displayName
 
     if (forwardRef) {
-      console.log('its happening') // eslint-disable-line
       const forwarded = React.forwardRef(function forwardConnectRef(
         props,
         ref
