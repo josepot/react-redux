@@ -11,7 +11,7 @@ export default (selector, props = emptyObj) => {
     [keySelector, props]
   )
 
-  useEffect(() => key && use(key), [key, use])
+  useEffect(() => use && use(key), [key, use])
 
   const finalProps = useMemo(() => (selector.length === 1 ? emptyObj : props), [
     props,
