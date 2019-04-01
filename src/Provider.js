@@ -1,27 +1,28 @@
 import PropTypes from 'prop-types'
-import React, { useCallback, createContext, useState, useEffect } from 'react'
+import React, { createContext, useState, useEffect } from 'react'
 
-export const context = createContext({})
+export const stateContext = createContext()
+export const dispatchContext = createContext()
 
-const { Provider } = context
+const { Provider: StateProvider } = stateContext
+const { Provider: DispatchProvider } = dispatchContext
 
-const ReduxProvider = ({ store, children }) => {
-  const [stateStore, setStateStore] = useState({})
-
-  const setState = useCallback(
-    () => setStateStore({ dispatch: store.dispatch, state: store.getState() }),
-    [setStateStore, store]
-  )
+const StateProviderComp = ({ store, children }) => {
+  const [stateStore, setStateStore] = useState(store.getState())
 
   useEffect(() => {
-    setState()
-    return store.subscribe(setState)
-  }, [setState, store])
+    setStateStore(store.getState())
+    return store.subscribe(() => setStateStore(store.getState()))
+  }, [store])
 
-  return stateStore.dispatch === undefined ? null : (
-    <Provider value={stateStore}>{children}</Provider>
-  )
+  return <StateProvider value={stateStore}>{children}</StateProvider>
 }
+
+export const ReduxProvider = ({ store, children }) => (
+  <DispatchProvider value={store.dispatch}>
+    <StateProviderComp store={store}>{children}</StateProviderComp>
+  </DispatchProvider>
+)
 
 ReduxProvider.propTypes = {
   children: PropTypes.any,
@@ -31,11 +32,12 @@ ReduxProvider.propTypes = {
     getState: PropTypes.func.isRequired
   })
 }
+StateProviderComp.propTypes = ReduxProvider.propTypes
 
 export const ServerProvider = ({ store, children }) => (
-  <Provider value={{ dispatch: store.dispatch, state: store.getState() }}>
-    {children}
-  </Provider>
+  <DispatchProvider value={store.dispatch}>
+    <StateProvider value={store.getState()}>{children}</StateProvider>
+  </DispatchProvider>
 )
 
 ServerProvider.propTypes = ReduxProvider.propTypes

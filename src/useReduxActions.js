@@ -1,21 +1,18 @@
 import { useContext, useMemo } from 'react'
 import invariant from 'invariant'
-import { context } from './Provider'
+import { dispatchContext } from './Provider'
 
 const emptyObj = {}
 
 export default (actionCreators = emptyObj, props = emptyObj) => {
-  const { dispatch } = useContext(context)
+  const dispatch = useContext(dispatchContext)
   if (process.env.NODE_ENV !== 'production') {
     invariant(dispatch, 'Could not find "store"')
   }
-  const relevantProps = useMemo(
-    () =>
-      typeof actionCreators === 'function' && actionCreators.length !== 1
-        ? props
-        : emptyObj,
-    [props]
-  )
+  const relevantProps =
+    typeof actionCreators === 'function' && actionCreators.length !== 1
+      ? props
+      : emptyObj
 
   return useMemo(() => {
     if (actionCreators === null) return { dispatch }
