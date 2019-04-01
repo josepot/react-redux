@@ -4,7 +4,7 @@ import React, { useContext, Component } from 'react'
 import ReactDOM from 'react-dom'
 import { createStore } from 'redux'
 import { Provider, connect } from '../../src/index.js'
-import { context } from '../../src/Provider'
+import { stateContext } from '../../src/Provider'
 import * as rtl from 'react-testing-library'
 import 'jest-dom/extend-expect'
 
@@ -16,7 +16,7 @@ describe('React', () => {
 
     const createChild = (storeKey = 'store') =>
       function Child() {
-        const { state } = useContext(context)
+        const state = useContext(stateContext)
         return <div data-testid="store">{`${storeKey} - ${state}`}</div>
       }
 
