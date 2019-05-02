@@ -1,6 +1,6 @@
 /*eslint-disable react/prop-types*/
 
-import React, { useReducer } from 'react'
+import React, { useReducer, useCallback } from 'react'
 import { createStore } from 'redux'
 import { renderHook, act } from 'react-hooks-testing-library'
 import * as rtl from 'react-testing-library'
@@ -155,7 +155,7 @@ describe('React', () => {
           expect(renderedItems.length).toBe(1)
         })
 
-        it('re-uses the selector if deps do not change', () => {
+        it('re-uses the selector if it does not change', () => {
           let selectorId = 0
           let forceRender
 
@@ -163,7 +163,8 @@ describe('React', () => {
             const [, f] = useReducer(c => c + 1, 0)
             forceRender = f
             const renderedSelectorId = selectorId++
-            const value = useSelector(() => renderedSelectorId, [])
+            const selector = useCallback(() => renderedSelectorId, [])
+            const value = useSelector(selector)
             renderedItems.push(value)
             return <div />
           }

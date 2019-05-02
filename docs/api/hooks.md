@@ -33,7 +33,7 @@ From there, you may import any of the listed React Redux hooks APIs and use them
 ## `useSelector()`
 
 ```js
-const result : any = useSelector(selector : Function, deps : any[])
+const result : any = useSelector(selector : Function)
 ```
 
 Allows you to extract data from the Redux store state, using a selector function.
@@ -43,7 +43,6 @@ The selector is approximately equivalent to the [`mapStateToProps` argument to `
 However, there are some differences between the selectors passed to `useSelector()` and a `mapState` function:
 
 - The selector may return any value as a result, not just an object. The return value of the selector will be used as the return value of the `useSelector()` hook.
-- The selector function used will be based on the `deps` array. If no deps array is provided, the latest passed-in selector function will be used when the component renders, and also when any actions are dispatched before the next render. If a deps array is provided, the last saved selector will be used, and that selector will be overwritten whenever the deps array contents have changed.
 - When an action is dispatched, `useSelector()` will do a shallow comparison of the previous selector result value and the current result value. If they are different, the component will be forced to re-render. If they are the same, they component will not re-render.
 - The selector function does _not_ receive an `ownProps` argument. If you wish to use props within the selector function to determine what values to extract, you should call the React [`useMemo()`](https://reactjs.org/docs/hooks-reference.html#usememo) or [`useCallback()`](https://reactjs.org/docs/hooks-reference.html#usecallback) hooks yourself to create a version of the selector that will be re-created whenever the props it depends on change.
 
@@ -68,13 +67,68 @@ export const CounterComponent = () => {
 Using props to determine what to extract:
 
 ```jsx
-import React from 'react'
+import React, {useCallback} from 'react'
 import { useSelector } from 'react-redux'
 
-export const TodoListItem = props => (
-  const todo = useSelector(state => state.todos[props.id], [props.id])
+export const TodoListItem = ({id}) => (
+  const selector = useCallback(state => state.todos[id], [id])
+  const todo = useSelector(selector)
 
   return <div>{todo.text}</div>
+}
+```
+
+With Reselect:
+
+```jsx
+// ducks/todos.js
+import { createSelector } from 'reselect'
+
+export const selectPendingTodos = createSelector(
+  (state) => state.todos,
+  (todos) => todos.filter(todo => todo.completed !== true)
+)
+
+export const selectNPendingTodos = createSelector(
+  selectPendingTodos,
+  pendingTodos => pendingTodos.length
+)
+
+// component.js
+
+import React from 'react'
+import { useSelector } from 'react-redux'
+import { selectNPendingTodos } from 'ducks/todos'
+
+export constPendingTodos = () => {
+  const nPendingTodos = useSelector(selectNPendingTodos)
+  return <div>{nPendingTodos}</div>
+}
+```
+
+With Reselect and factory-selectors:
+
+```jsx
+// ducks/todos.js
+import { createSelector } from 'reselect'
+
+export const makeSelectTodoById = (id) => createSelector(
+  (state) => state.todos,
+  (todos) => todos.filter(todo => todo.id === id)
+)
+
+
+// component.js
+
+import React from 'react'
+import { useSelector } from 'react-redux'
+import { makeSelectTodoById } from 'ducks/todos'
+
+export const Todo = ({id}) => {
+  const todoSelector = useMemo(() => makeSelectTodoById(id), [id])
+  const todo = useSelector(todoSelector)
+
+  return <div>{todo.name}</div>
 }
 ```
 
