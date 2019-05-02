@@ -47,7 +47,7 @@ describe('React', () => {
       })
 
       describe('lifeycle interactions', () => {
-        it.only('always uses the latest state', () => {
+        it('always uses the latest state', () => {
           store = createStore(c => c + 1, -1)
 
           const Comp = () => {

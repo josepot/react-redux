@@ -60,20 +60,21 @@ export function useSelector(selector) {
   const [error, setError] = useState(null)
 
   const latestSelector = useRef(selector)
+  const latestState = useRef(state)
 
   useIsomorphicLayoutEffect(() => {
     latestSelector.current = selector
-    setState(selector(store.getState()))
-  }, [selector])
+  })
 
   useIsomorphicLayoutEffect(() => {
     function checkForUpdates() {
       try {
         const newSelectedState = latestSelector.current(store.getState())
 
-        if (shallowEqual(newSelectedState, state)) {
+        if (shallowEqual(newSelectedState, latestState.current)) {
           return
         }
+        latestState.current = newSelectedState
         setState(newSelectedState)
       } catch (err) {
         // we ignore all errors here, since when the component
@@ -98,6 +99,11 @@ export function useSelector(selector) {
     }.\n\nOriginal stack trace:\n${error.stack}`
 
     throw new Error(errorMessage)
+  }
+
+  if (selector != latestSelector.current) {
+    latestState.current = selector(store.getState())
+    return latestState.current
   }
 
   return state
