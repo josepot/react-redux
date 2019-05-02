@@ -1,4 +1,4 @@
-import { useReducer, useRef, useEffect, useMemo, useLayoutEffect } from 'react'
+import { useState, useRef, useEffect, useMemo, useLayoutEffect } from 'react'
 import invariant from 'invariant'
 import { useReduxContext } from './useReduxContext'
 import shallowEqual from '../utils/shallowEqual'
@@ -42,61 +42,46 @@ export function useSelector(selector) {
   invariant(selector, `You must pass a selector to useSelectors`)
 
   const { store, subscription: contextSub } = useReduxContext()
-  const [, forceRender] = useReducer(s => s + 1, 0)
 
   const subscription = useMemo(() => new Subscription(store, contextSub), [
     store,
     contextSub
   ])
 
-  const latestSubscriptionCallbackError = useRef()
-  const latestSelector = useRef(selector)
-
-  let selectedState = undefined
-
+  let state, setState
   try {
-    selectedState = selector(store.getState())
+    ;[state, setState] = useState(selector(store.getState()))
   } catch (err) {
-    let errorMessage = `An error occured while selecting the store state: ${
+    const errorMessage = `An error occured while selecting the store state: ${
       err.message
     }.`
-
-    if (latestSubscriptionCallbackError.current) {
-      errorMessage += `\nThe error may be correlated with this previous error:\n${
-        latestSubscriptionCallbackError.current.stack
-      }\n\nOriginal stack trace:`
-    }
-
     throw new Error(errorMessage)
   }
+  const [error, setError] = useState(null)
 
-  const latestSelectedState = useRef(selectedState)
+  const latestSelector = useRef(selector)
 
   useIsomorphicLayoutEffect(() => {
     latestSelector.current = selector
-    latestSelectedState.current = selectedState
-    latestSubscriptionCallbackError.current = undefined
-  })
+    setState(selector(store.getState()))
+  }, [selector])
 
   useIsomorphicLayoutEffect(() => {
     function checkForUpdates() {
       try {
         const newSelectedState = latestSelector.current(store.getState())
 
-        if (shallowEqual(newSelectedState, latestSelectedState.current)) {
+        if (shallowEqual(newSelectedState, state)) {
           return
         }
-
-        latestSelectedState.current = newSelectedState
+        setState(newSelectedState)
       } catch (err) {
         // we ignore all errors here, since when the component
         // is re-rendered, the selectors are called again, and
         // will throw again, if neither props nor store state
         // changed
-        latestSubscriptionCallbackError.current = err
+        setError(err)
       }
-
-      forceRender({})
     }
 
     subscription.onStateChange = checkForUpdates
@@ -107,5 +92,13 @@ export function useSelector(selector) {
     return () => subscription.tryUnsubscribe()
   }, [store, subscription])
 
-  return selectedState
+  if (error) {
+    const errorMessage = `An error occured while selecting the store state: ${
+      error.message
+    }.\n\nOriginal stack trace:\n${error.stack}`
+
+    throw new Error(errorMessage)
+  }
+
+  return state
 }
